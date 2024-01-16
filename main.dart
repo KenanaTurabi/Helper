@@ -82,8 +82,9 @@ class _CombinedScreenState extends State<CombinedScreen> {
         body:
 
             //AdminPage(isDark, updateState),
-            // BottomNavigationBarExample(isDark, updateState),
+            //BottomNavigationBarExample(),
             // WelcomeScreen(isDark, updateState),
+            //   InsertDataPage(),
             WelcomeScreen(),
         // PersonWidget(allPersons[1], isDark, updateState),
         // Other widgets/screens can be added here based on your requirements

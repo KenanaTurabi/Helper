@@ -146,7 +146,8 @@ class _AllPostsState extends State<AllPosts> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => InsertDataPage()),
+              MaterialPageRoute(
+                  builder: (context) => InsertDataPage(context: context)),
             );
           },
           backgroundColor: Colors.blue,

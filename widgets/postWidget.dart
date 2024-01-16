@@ -236,7 +236,7 @@ class _PostWidgetState extends State<PostWidget> {
               children: [
                 CircleAvatar(
                   backgroundImage: NetworkImage(
-                    widget.postModel.profileImage!,
+                    widget.postModel.profileImage ?? "",
                   ),
                   radius: 30,
                 ),
@@ -247,7 +247,7 @@ class _PostWidgetState extends State<PostWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.postModel.userName,
+                      widget.postModel.userName ?? "UnKnown",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

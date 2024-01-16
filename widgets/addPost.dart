@@ -1,43 +1,85 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_application_1/home.dart';
+import 'package:flutter_application_1/screens/allPosts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_application_1/shared_preferences_helper.dart';
 
 class InsertDataPage extends StatefulWidget {
+  final BuildContext context;
+  InsertDataPage({required this.context});
   @override
   _InsertDataPageState createState() => _InsertDataPageState();
 }
 
 class _InsertDataPageState extends State<InsertDataPage> {
   TextEditingController contentController = TextEditingController();
-  File? selectedImage;
+  TextEditingController imageUrlController = TextEditingController();
+  int? userId;
 
-  Future<void> _pickImage() async {
-    final imagePicker = ImagePicker();
-    final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedImage != null) {
-        selectedImage = File(pickedImage.path);
-      } else {
-        print('No image selected.');
-      }
+  @override
+  void initState() {
+    super.initState();
+    getUserId().then((value) {
+      setState(() {
+        userId = value;
+      });
     });
   }
 
   Future<void> _submitData() async {
-    String content = contentController.text;
-
-    // You can do something with the entered content and image file
-    print('Content: $content');
-    if (selectedImage != null) {
-      print('Image path: ${selectedImage!.path}');
-    } else {
-      print('No image selected.');
+    if (userId == null) {
+      print('User ID is null. Please check SharedPreferences.');
+      return;
     }
 
-    // Navigate back to the all posts page
-    Navigator.pop(context);
+    String content = contentController.text;
+    String imageUrl = imageUrlController.text;
+
+    // You can do something with the entered content and image URL
+    print('Content: $content');
+    print('Image URL: $imageUrl');
+
+    // Send data to the API
+    await _addPostToServer(content, imageUrl, userId!);
+
+    // Navigate back to the AllPosts page
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => BottomNavigationBarExample()),
+    );
+    // Navigator.push(
+    // context, MaterialPageRoute(builder: (context) => AllPosts()));
+  }
+
+  Future<void> _addPostToServer(
+      String content, String imageUrl, int userId) async {
+    // Define your API endpoint
+    final apiUrl = 'http://localhost:5000/Posts/add';
+
+    // Prepare the request body
+    final Map<String, dynamic> requestBody = {
+      'postContent': content,
+      'image': imageUrl,
+      'userId': userId,
+      'postId': 0, // Provide a default value or generate dynamically
+      'likeCount': 0,
+    };
+
+    try {
+      // Make the HTTP request
+      final response = await http.put(Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestBody));
+
+      if (response.statusCode == 201) {
+        print('Post added successfully');
+      } else {
+        print('Failed to add post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error adding post: $e');
+    }
   }
 
   @override
@@ -56,20 +98,10 @@ class _InsertDataPageState extends State<InsertDataPage> {
               decoration: InputDecoration(labelText: 'Content'),
             ),
             SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick Image'),
+            TextField(
+              controller: imageUrlController,
+              decoration: InputDecoration(labelText: 'Image URL'),
             ),
-            SizedBox(height: 16.0),
-            selectedImage != null
-                ? Image.file(selectedImage!,
-                    height: 100.0, width: 100.0, fit: BoxFit.cover)
-                : Container(
-                    height: 100.0,
-                    width: 100.0,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.camera_alt, color: Colors.grey[800]),
-                  ),
             SizedBox(height: 32.0),
             ElevatedButton(
               onPressed: _submitData,

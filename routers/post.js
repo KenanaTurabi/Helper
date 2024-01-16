@@ -273,7 +273,7 @@ router.get('/GetAllPosts', async (req, res) => {
 
 async function getUserDetails(userId) {
     try {
-        console.log("id: " + userId);
+        console.log("id from getUserDetails: " + userId);
 
         // Check if userId is undefined or null
         if (!userId) {
