@@ -16,6 +16,7 @@ class PostModel {
   final String? profileImage;
   List<CommentModel> comments; // New field for comments
   List<int> likes; // New field for likes
+  String createdAt; // New field
 
   int likeCount;
 
@@ -27,6 +28,7 @@ class PostModel {
     required this.likeCount,
     required this.likes,
     this.profileImage,
+    required this.createdAt,
     List<CommentModel>? comments,
   }) : comments = comments ?? [];
 
@@ -47,6 +49,7 @@ class PostModel {
               ?.map((like) => like as int)
               .toList() ??
           [],
+      createdAt: map['createdAt'] ?? '',
     );
   }
 }

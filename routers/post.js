@@ -249,6 +249,7 @@ router.get('/GetAllPosts', async (req, res) => {
                     image: post.image,
                     userName: userDetails ? userDetails.name : null,
                     profileImage: userDetails ? userDetails.image : null,
+                    createdAt:post.createdAt,
                 };
             } catch (error) {
                 console.error(error);
@@ -259,6 +260,7 @@ router.get('/GetAllPosts', async (req, res) => {
                     image: post.image,
                     userName: null,
                     profileImage: null,
+                    createdAt:post.createdAt,
                 };
             }
         }));

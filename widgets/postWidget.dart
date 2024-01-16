@@ -255,7 +255,7 @@ class _PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                     Text(
-                      'published on 10 March 2023',
+                      widget.postModel.createdAt ?? "UnKnown",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,

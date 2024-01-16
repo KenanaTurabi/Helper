@@ -54,6 +54,8 @@ class _InsertDataPageState extends State<InsertDataPage> {
 
   Future<void> _addPostToServer(
       String content, String imageUrl, int userId) async {
+    final DateTime now = DateTime.now();
+    final String formattedDate = now.toLocal().toString();
     // Define your API endpoint
     final apiUrl = 'http://localhost:5000/Posts/add';
 
@@ -64,6 +66,7 @@ class _InsertDataPageState extends State<InsertDataPage> {
       'userId': userId,
       'postId': 0, // Provide a default value or generate dynamically
       'likeCount': 0,
+      'createdAt': formattedDate,
     };
 
     try {

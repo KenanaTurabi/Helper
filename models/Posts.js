@@ -34,6 +34,10 @@ const postSchema = new mongoose.Schema({
         type: Number,
       }
     ],
+    createdAt: {
+      type: String,
+      required: true,
+    },
     userName: String, // Add this field
     profileImage: String, // Add this field
   });
