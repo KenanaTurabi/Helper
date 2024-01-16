@@ -80,6 +80,7 @@ class _CombinedScreenState extends State<CombinedScreen> {
         //   child: CustomeAppBar(isDark, updateState),
         // ),
         body:
+
             //AdminPage(isDark, updateState),
             // BottomNavigationBarExample(isDark, updateState),
             // WelcomeScreen(isDark, updateState),

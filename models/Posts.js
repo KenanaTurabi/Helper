@@ -14,12 +14,11 @@ const postSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-/*
+
     likeCount: {
       type: Number,
       required: true,
     },
-    */
     postId: {
       type: Number,
       required: true,
@@ -28,6 +27,11 @@ const postSchema = new mongoose.Schema({
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment', // Assuming Comment is the model for comments
+      }
+    ],
+    likes: [
+      {
+        type: Number,
       }
     ],
     userName: String, // Add this field

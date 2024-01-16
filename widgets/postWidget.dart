@@ -9,13 +9,16 @@ import 'package:flutter_application_1/shared_preferences_helper.dart';
 
 class PostWidget extends StatefulWidget {
   final PostModel postModel;
-  PostWidget(this.postModel);
+  bool isLiked;
+
+  PostWidget(this.postModel, {required this.isLiked});
   @override
   State<PostWidget> createState() => _PostWidgetState();
 }
 
 class _PostWidgetState extends State<PostWidget> {
-  bool isLike = false;
+  bool isMounted = false; // Add this boolean flag
+  final PageStorageBucket bucket = PageStorageBucket();
 
   String? userFullName = "";
   int? userId;
@@ -23,6 +26,7 @@ class _PostWidgetState extends State<PostWidget> {
   final Logger logger = Logger();
   String content = '';
   TextEditingController _textController = TextEditingController();
+  GlobalKey<_PostWidgetState> key = GlobalKey();
 
   Future<void> fetchComments() async {
     try {
@@ -69,7 +73,7 @@ class _PostWidgetState extends State<PostWidget> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> userData = json.decode(response.body);
         final String userFullName = userData['fullname'];
-        print('user name:' + userFullName);
+        //  print('user name:' + userFullName);
         return userFullName;
       } else {
         print('Failed to load user details: ${response.statusCode}');
@@ -124,6 +128,9 @@ class _PostWidgetState extends State<PostWidget> {
           final String commentcommentOwnerName =
               commentData['commentOwnerName'].toString();
 
+          // Check if the widget is still mounted before calling setState
+          if (!mounted) return;
+
           setState(() {
             comments.add(CommentModel(
                 content: commentContent,
@@ -140,6 +147,8 @@ class _PostWidgetState extends State<PostWidget> {
         print('Error adding comment: Comment data is null');
       }
     } catch (error) {
+      // Check if the widget is still mounted before printing the error
+      if (!mounted) return;
       print('Error adding comment: $error');
     }
   }
@@ -148,193 +157,246 @@ class _PostWidgetState extends State<PostWidget> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CommentsScreen(
-          comments,
-        ),
+        builder: (context) => CommentsScreen(comments),
       ),
     );
+  }
+
+  Future<void> toggleLike() async {
+    try {
+      int? userId = await getUserId();
+
+      final response = await http.post(
+        Uri.parse(
+          'http://localhost:5000/posts/toggleLike/${widget.postModel.postId}',
+        ),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'userId': userId,
+        }),
+      );
+
+      print('Server Response: ${response.statusCode} - ${response.body}');
+
+      final dynamic decodedResponse = jsonDecode(response.body);
+
+      if (decodedResponse != null &&
+          decodedResponse['message'] != null &&
+          decodedResponse['likeCount'] != null) {
+        final String message = decodedResponse['message'].toString();
+        final int updatedLikeCount = decodedResponse['likeCount'];
+
+        setState(() {
+          widget.isLiked = !widget.isLiked; // Toggle like status
+          widget.postModel.likeCount = updatedLikeCount; // Update like count
+        });
+        print("Like Status:" + widget.isLiked.toString());
+
+        print('Like Count: ' + widget.postModel.likeCount.toString());
+      } else {
+        print('Error toggling like: Incorrect response format');
+      }
+    } catch (error) {
+      print('Error toggling like: $error');
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    key = GlobalKey(); // Initialize the GlobalKey in initState
+    isMounted = true; // Set the flag to true in initState
     fetchComments();
+    // checkLikeStatus(); // Call checkLikeStatus during initialization
+    getUserId().then((userId) {
+      print('Current User ID: $userId');
+    });
   }
 
-  int likeCount = 0;
+  @override
+  void dispose() {
+    isMounted = false; // Set the flag to false in dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(
-                  widget.postModel.profileImage!,
-                ),
-                radius: 30,
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.postModel.userName,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'published on 10 March 2023',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 350,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(widget.postModel.image),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
+    return PageStorage(
+      key: PageStorageKey<String>('post_${widget.postModel.postId}'),
+      bucket: bucket,
+      child: Column(
+        // key: key, // Add a GlobalKey to uniquely identify this widget
+
+        children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+            child: Row(
               children: [
-                InkWell(
-                  onTap: () {
-                    isLike = !isLike;
-                    setState(() {});
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.favorite,
-                        color: isLike ? Colors.red : Colors.grey,
-                        size: 25,
-                      ),
-                      //Text(widget.postModel.likeCount.toString() + " likes"),
-                      Text(" 10 likes"),
-                    ],
+                CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    widget.postModel.profileImage!,
                   ),
+                  radius: 30,
                 ),
-                SizedBox(width: 10),
-                InkWell(
-                  onTap: () {
-                    viewComments();
-                  },
-                  child: Row(
-                    children: [
-                      Icon(Icons.comment),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                        child: Text("View Comments"),
-                      ),
-                    ],
-                  ),
+                SizedBox(
+                  width: 20,
                 ),
-              ],
-            ),
-            Padding(
-                padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                child: Text(
-                  widget.postModel.postContent,
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.w500),
-                )),
-            Column(
-              children: [
-                SizedBox(height: 5), // Add some space between the two rows
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(width: 5),
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        onChanged: (v) {
-                          content = v;
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Write your comment',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
+                    Text(
+                      widget.postModel.userName,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
                       ),
                     ),
-                    SizedBox(width: 5),
-                    InkWell(
-                      onTap: () async {
-                        print(
-                          'Before addComment: postId=${widget.postModel.postId}, content=$content',
-                        );
-                        int? userId = await getUserId();
-                        print("user id:" + userId.toString());
-
-                        await getUserFullName(userId!);
-                        print(
-                          "user name2:" + (userFullName ?? "Unknown"),
-                        );
-
-                        await addComment();
-                      },
-                      child: Container(
-                        child: Icon(Icons.send),
+                    Text(
+                      'published on 10 March 2023',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            Container(
-              padding: EdgeInsets.fromLTRB(0, 2, 0, 2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 350,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(widget.postModel.image),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
                 children: [
-                  // Display only the first comment under the post
-                  comments.isNotEmpty
-                      ? ListTile(
-                          title: Text(comments[0].commentOwnerName),
-                          subtitle: Text(comments[0].content),
-                        )
-                      : SizedBox(),
+                  InkWell(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.favorite,
+                          color: widget.isLiked ? Colors.red : Colors.grey,
+                          size: 25,
+                        ),
+                        Text(widget.postModel.likeCount.toString() + " likes"),
+                      ],
+                    ),
+                    onTap: () {
+                      //await checkLikeStatus();
+                      toggleLike();
+                    },
+                  ),
+                  SizedBox(width: 10),
+                  InkWell(
+                    onTap: () {
+                      viewComments();
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.comment),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                          child: Text("View Comments"),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey,
-            ),
-            SizedBox(
-              height: 5,
-            ),
-          ],
-        ),
-      ],
+              Padding(
+                  padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: Text(
+                    widget.postModel.postContent,
+                    style: TextStyle(
+                        color: Colors.blue, fontWeight: FontWeight.w500),
+                  )),
+              Column(
+                children: [
+                  SizedBox(height: 5), // Add some space between the two rows
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _textController,
+                          onChanged: (v) {
+                            content = v;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Write your comment',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      InkWell(
+                        onTap: () async {
+                          print(
+                            'Before addComment: postId=${widget.postModel.postId}, content=$content',
+                          );
+                          int? userId = await getUserId();
+                          print("user id:" + userId.toString());
+
+                          await getUserFullName(userId!);
+                          print(
+                            "user name2:" + (userFullName ?? "Unknown"),
+                          );
+
+                          await addComment();
+                        },
+                        child: Container(
+                          child: Icon(Icons.send),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(5, 2, 5, 2),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Display only the first comment under the post
+                    comments.isNotEmpty
+                        ? ListTile(
+                            title: Text(comments[0].commentOwnerName),
+                            subtitle: Text(comments[0].content),
+                          )
+                        : SizedBox(),
+                  ],
+                ),
+              ),
+              Divider(
+                thickness: 1,
+                color: Colors.grey,
+              ),
+              SizedBox(
+                height: 15,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

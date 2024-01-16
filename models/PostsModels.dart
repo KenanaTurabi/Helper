@@ -15,14 +15,17 @@ class PostModel {
   final String userName;
   final String? profileImage;
   List<CommentModel> comments; // New field for comments
-  // final int likeCount;
+  List<int> likes; // New field for likes
+
+  int likeCount;
 
   PostModel({
     required this.postId,
     required this.postContent,
     required this.image,
     required this.userName,
-    // required this.likeCount,
+    required this.likeCount,
+    required this.likes,
     this.profileImage,
     List<CommentModel>? comments,
   }) : comments = comments ?? [];
@@ -31,13 +34,17 @@ class PostModel {
     return PostModel(
       postId: map['postId'] as int? ??
           0, // Provide a default value (e.g., 0) if postId is null
-      //  likeCount: map['likeCount'] as int? ?? 0,
+      likeCount: map['likeCount'] as int? ?? 0,
       postContent: map['postContent'] ?? '',
       image: map['image'] ?? '',
       userName: map['userName'] ?? '',
       profileImage: map['profileImage'] ?? null,
       comments: (map['comments'] as List<dynamic>?)
               ?.map((comment) => CommentModel.fromMap(comment))
+              .toList() ??
+          [],
+      likes: (map['likes'] as List<dynamic>?)
+              ?.map((like) => like as int)
               .toList() ??
           [],
     );

@@ -2,32 +2,53 @@ const express = require('express');
 const router = new express.Router();
 const mongoose = require('mongoose');
 const Post = require('../models/Posts');
-const { ObjectId } = require('mongoose').Types; // Import ObjectId
+const { ObjectId } = require('mongoose');
 const User = require('../models/User');
 const Doctor = require('../models/Doctor'); // Import Doctor model
 const Patient = require('../models/Patient'); // Import Patient model
 const axios = require('axios');
 
+router.get('/posts/:postId/likeCount', async (req, res) => {
+  try {
+    const postId = req.params.postId;
+
+    // Fetch the post with the given postId
+    const post = await Post.findOne({ postId:postId });
 
 
-/*
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Return the like count
+    res.status(200).json({ likeCount: post.likeCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.post('/posts/like/:postId', async (req, res) => {
-  const postId = req.params.postId;
+  const postIdReq = req.params.postId;
 
   try {
-    const post = await Post.findById(postId);
+    // Extract userId from the request body
+    const userId = req.body.userId;
+
+    // Find the post using the postId
+    const post = await Post.findOne({ postId: postIdReq });
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
     // Check if the user has already liked the post
-    if (post.likes.includes(req.body.userId)) {
+    if (post.likes.includes(userId)) {
       return res.status(400).json({ error: 'Post already liked' });
     }
 
     // Add user to the list of likes
-    post.likes.push(req.body.userId);
+    post.likes.push(userId);
     post.likeCount = post.likes.length;
 
     await post.save();
@@ -37,7 +58,102 @@ router.post('/posts/like/:postId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-*/
+
+// ...
+
+router.post('/posts/toggleLike/:postId', async (req, res) => {
+  const postIdReq = req.params.postId;
+
+  try {
+    // Extract userId from the request body
+    const userId = req.body.userId;
+
+    // Find the post using the postId
+    const post = await Post.findOne({ postId: postIdReq });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if the user has already liked the post
+    const indexOfUser = post.likes.indexOf(userId);
+
+    if (indexOfUser === -1) {
+      // If the user hasn't liked the post, add like
+      post.likes.push(userId);
+      post.likeCount = post.likes.length;
+      await post.save();
+      res.status(200).json({ message: 'Post liked successfully', likeCount: post.likeCount });
+    } else {
+      // If the user has liked the post, remove like
+      post.likes.splice(indexOfUser, 1);
+      post.likeCount = post.likes.length;
+      await post.save();
+      res.status(200).json({ message: 'Post unliked successfully', likeCount: post.likeCount });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// ...
+
+
+// Endpoint to check like status
+router.get('/posts/:postId/likeStatus', async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.body.userId; // Assuming userId is sent in the request body
+
+    // Fetch the post with the given postId
+    const post = await Post.findOne({ postId });
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if the user has already liked the post
+    const isLiked = post.likes.includes(userId);
+
+    // Return the like status along with like count
+    res.status(200).json({ isLiked, likeCount: post.likeCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+module.exports = router;
+
+
+router.post('/posts/unlike/:postId', async (req, res) => {
+  const postIdReq = req.params.postId;
+
+  try {
+    const post = await Post.findOne({postId:postIdReq});
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Check if the user has liked the post
+    const indexOfUser = post.likes.indexOf(req.body.userId);
+    if (indexOfUser === -1) {
+      return res.status(400).json({ error: 'Post not liked by the user' });
+    }
+
+    // Remove user from the list of likes
+    post.likes.splice(indexOfUser, 1);
+    post.likeCount = post.likes.length;
+
+    await post.save();
+    res.status(200).json({ message: 'Post unliked successfully', likeCount: post.likeCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 router.get('/GetUserDetails/:userId', async (req, res) => {
     try {
