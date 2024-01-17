@@ -186,8 +186,36 @@ router.get('/GetUserDetails/:userId', async (req, res) => {
   }
   );
   
+ 
+router.put("/Posts/add", async (req, res) => {
+  console.log("PUT request received at /Posts/add");
+  try {
+    // Manually increment postId
+    const postId = await getNextPostId();
+
+    const post = new Post({
+      postId,
+      postContent: req.body.postContent, // Assuming you have a postContent field
+      image: req.body.image, // Assuming you have an image field
+      userId: req.body.userId, // Assuming you have a userId field
+      likeCount: 0, // Initial like count
+      createdAt: new Date(), // Assuming you have a createdAt field
+      // ... other fields
+      comments: [],
+      likes: [],
+    });
+
+    await post.save();
+    res.status(201).send({ post });
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+  
 
 // Route to create a new post
+
+/*
 router.put("/Posts/add", async (req, res) => {
   console.log("PUT request received at /Posts/add");
   const post = new Post(req.body); // Use Post directly
@@ -198,6 +226,7 @@ router.put("/Posts/add", async (req, res) => {
     res.status(400).send(e);
   }
 });
+*/
 
 // Route to get all posts
 router.get('/posts', async (req, res) => {
@@ -209,7 +238,21 @@ router.get('/posts', async (req, res) => {
     console.log(e);
   }
 });
+async function getNextPostId() {
+  try {
+    const lastPost = await Post.findOne().sort({ postId: -1 });
 
+    // If no posts exist, start from 1
+    if (!lastPost) {
+      return 13;
+    }
+
+    return lastPost.postId + 1;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 // Route to create a new post
 router.post('/Addposts', async (req, res) => {
   try {
@@ -308,50 +351,5 @@ async function getUserDetails(userId) {
     }
 }
 
-
-
-/*
-router.get('/GetAllPosts', async (req, res) => {
-    try {
-      // Fetch all posts
-      const posts = await Post.find();
-  
-      // Process each post to get user details
-      const formattedPosts = await Promise.all(posts.map(async (post) => {
-        try {
-          // Fetch user details using the existing API endpoint
-          const userDetails = await getUserDetails(post.userId);
-  
-          // Return formatted post with user details
-          return {
-            postContent: post.postContent,
-            image: post.image,
-            userName: userDetails ? userDetails.name : null,
-            profileImage: userDetails ? userDetails.image : null,
-          };
-        } catch (error) {
-          console.error(error);
-          return {
-            postContent: post.postContent,
-            image: post.image,
-            userName: null,
-            profileImage: null,
-          };
-        }
-      }));
-  
-      res.status(200).json(formattedPosts);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
-  */
-  
-  // ...
-  
-  
-  
-  
 
 module.exports = router;
