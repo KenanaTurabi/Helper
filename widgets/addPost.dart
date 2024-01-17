@@ -57,7 +57,7 @@ class _InsertDataPageState extends State<InsertDataPage> {
     final DateTime now = DateTime.now();
     final String formattedDate = now.toLocal().toString();
     // Define your API endpoint
-    final apiUrl = 'http://localhost:5000/Posts/add';
+    final apiUrl = 'http://192.168.1.3:5000/Posts/add';
 
     // Prepare the request body
     final Map<String, dynamic> requestBody = {

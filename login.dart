@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
     try {
       final response = await http.post(
         Uri.parse(
-            'http://localhost:5000/login'), // Replace with your login endpoint
+            'http://192.168.1.3:5000/login'), // Replace with your login endpoint
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

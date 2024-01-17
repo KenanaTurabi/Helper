@@ -33,7 +33,7 @@ class _PostWidgetState extends State<PostWidget> {
   Future<void> fetchComments() async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:5000/comment/${widget.postModel.postId}'),
+        Uri.parse('http://192.168.1.3:5000/comment/${widget.postModel.postId}'),
       );
 
       if (response.statusCode == 200) {
@@ -72,7 +72,7 @@ class _PostWidgetState extends State<PostWidget> {
   Future<String> getUserFullName(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:5000/User/$userId'),
+        Uri.parse('http://192.168.1.3:5000/User/$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class _PostWidgetState extends State<PostWidget> {
   Future<String> getUserImg(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:5000/GetUserDetails/$userId'),
+        Uri.parse('http://192.168.1.3:5000/GetUserDetails/$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -132,7 +132,7 @@ class _PostWidgetState extends State<PostWidget> {
       }
 
       final response = await http.put(
-        Uri.parse('http://localhost:5000/comments/add'),
+        Uri.parse('http://192.168.1.3:5000/comments/add'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -207,7 +207,7 @@ class _PostWidgetState extends State<PostWidget> {
 
       final response = await http.post(
         Uri.parse(
-          'http://localhost:5000/posts/toggleLike/${widget.postModel.postId}',
+          'http://192.168.1.3:5000/posts/toggleLike/${widget.postModel.postId}',
         ),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

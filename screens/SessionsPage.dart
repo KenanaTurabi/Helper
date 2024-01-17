@@ -21,7 +21,8 @@ class _SessionsPageState extends State<SessionsPage> {
 
   Future<void> fetchSessions() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:5000/sessions'));
+      final response =
+          await http.get(Uri.parse('http://192.168.1.3:5000/sessions'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['sessions'];
@@ -32,7 +33,8 @@ class _SessionsPageState extends State<SessionsPage> {
               doctorname: sessionData['doctorname'] ?? 'DefaultDoctorName',
               doctorimage: sessionData['doctorimage'] ?? 'DefaultDoctorImage',
               subject: sessionData['subject'] ?? 'DefaultSubject',
-              Session_Date: DateTime.tryParse(sessionData['Session_Date']) ?? DateTime.now(),
+              Session_Date: DateTime.tryParse(sessionData['Session_Date']) ??
+                  DateTime.now(),
               time: sessionData['time'] ?? '',
             );
           }).toList();

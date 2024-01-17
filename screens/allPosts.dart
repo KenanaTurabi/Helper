@@ -18,7 +18,7 @@ class _AllPostsState extends State<AllPosts> {
   Future<List<PostModel>> fetchPosts() async {
     try {
       final response =
-          await http.get(Uri.parse('http://localhost:5000/GetAllPosts'));
+          await http.get(Uri.parse('http://192.168.1.3:5000/GetAllPosts'));
 
       if (response.statusCode == 200) {
         final List<dynamic> postsJsonList =
@@ -45,7 +45,7 @@ class _AllPostsState extends State<AllPosts> {
       for (PostModel post in posts) {
         final responseLike = await http.get(
           Uri.parse(
-              'http://localhost:5000/posts/${post.postId}/likeStatus?userId=$userId'),
+              'http://192.168.1.3:5000/posts/${post.postId}/likeStatus?userId=$userId'),
           headers: {'Content-Type': 'application/json'},
         );
 

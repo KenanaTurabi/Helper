@@ -10,7 +10,8 @@ class PendingDoctorsPage extends StatefulWidget {
 
 class _PendingDoctorsPageState extends State<PendingDoctorsPage> {
   Future<List<Doctor>> getPendingDoctors() async {
-    final response = await http.get(Uri.parse('http://localhost:5000/doctors'));
+    final response =
+        await http.get(Uri.parse('http://192.168.1.3:5000/doctors'));
 
     if (response.statusCode == 200) {
       final List<dynamic> doctorsJsonList =
@@ -91,7 +92,7 @@ class _PendingDoctorsPageState extends State<PendingDoctorsPage> {
   Future<void> deleteDoctor(int doctorId) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://localhost:5000/doctors/$doctorId'),
+        Uri.parse('http://192.168.1.3:5000/doctors/$doctorId'),
       );
 
       if (response.statusCode == 200) {
@@ -111,7 +112,7 @@ class _PendingDoctorsPageState extends State<PendingDoctorsPage> {
   Future<void> acceptDoctor(int doctorId) async {
     try {
       final response = await http.put(
-        Uri.parse('http://localhost:5000/doctors/accept/$doctorId'),
+        Uri.parse('http://192.168.1.3:5000/doctors/accept/$doctorId'),
       );
 
       if (response.statusCode == 200) {

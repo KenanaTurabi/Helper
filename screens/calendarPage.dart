@@ -23,8 +23,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 
-
- class CalendarPage extends StatefulWidget {
+class CalendarPage extends StatefulWidget {
   final bool isDark;
   final Function updateState;
 
@@ -33,9 +32,7 @@ import 'package:flutter/cupertino.dart';
   State<CalendarPage> createState() => _CalendarPageState();
 }
 
-
 class _CalendarPageState extends State<CalendarPage> {
-
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedCalendarDate = DateTime.now();
   DateTime _initialCalendarDate = DateTime(DateTime.now().year - 1, 1, 1);
@@ -44,10 +41,9 @@ class _CalendarPageState extends State<CalendarPage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descpController = TextEditingController();
   Event? myEvents; // Define the type of myEvents
- 
+
   List<Event> events = [];
   Map<DateTime, List<Event>> mySelectedEvents = {};
-
 
   Map<DateTime, List<Event>> groupAppointmentsByDate(List<Event> appointments) {
     Map<DateTime, List<Event>> groupedAppointments = {};
@@ -98,11 +94,9 @@ class _CalendarPageState extends State<CalendarPage> {
         print('mySelectedEvents after loading: $mySelectedEvents');
       } else {
         print('User ID is null. Cannot fetch appointments.');
-       
       }
     } catch (error) {
       print('Error loading appointments: $error');
-  
     }
   }
 
@@ -111,11 +105,11 @@ class _CalendarPageState extends State<CalendarPage> {
     try {
       if (userId == null) {
         print('Error: UserId is null.');
-        return []; 
+        return [];
       }
 
       final response = await http
-          .get(Uri.parse('http://localhost:5000/appointments/$userId'));
+          .get(Uri.parse('http://192.168.1.3:5000/appointments/$userId'));
 
       if (response.statusCode == 200) {
         print(response.body);
@@ -132,7 +126,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
           // Ensure that 'eventDate' is a non-null String and can be parsed to DateTime.
           final String? serverDateString = appointment['eventDate'];
-           final String? Currentworkingplace=appointment['currentWorkplace'];
+          final String? Currentworkingplace = appointment['currentWorkplace'];
 
           final DateTime eventDate = serverDateString != null
               ? DateTime.tryParse(serverDateString) ?? DateTime.now()
@@ -147,9 +141,9 @@ class _CalendarPageState extends State<CalendarPage> {
               ? Doctor(
                   name: doctorData['name'] ?? 'DefaultDoctorName',
                   image: doctorData['image'] ?? 'DefaultDoctorImage',
-                  specialistId: doctorData['specialistId'] ??  -1, // Provide a default value or handle differently
-                  currentworkingplace:Currentworkingplace,
-
+                  specialistId: doctorData['specialistId'] ??
+                      -1, // Provide a default value or handle differently
+                  currentworkingplace: Currentworkingplace,
                 )
               : null;
 
@@ -207,26 +201,25 @@ class _CalendarPageState extends State<CalendarPage> {
       context,
       MaterialPageRoute(
         builder: (context) => SecondScreen(
-          isDark:widget.isDark,updateState:widget.updateState,
-          selectedDate: selectedCalendarDate,
-          availableTimes: [
-            '8:00 AM',
-            '9:00 AM',
-            '10:00 AM',
-            '11:00 AM',
-            '1:00 PM',
-            '2:00 PM',
-            '3:00 PM',
-            '4:00 PM',
-            '5:00 PM',
-          ]
-        ),
+            isDark: widget.isDark,
+            updateState: widget.updateState,
+            selectedDate: selectedCalendarDate,
+            availableTimes: [
+              '8:00 AM',
+              '9:00 AM',
+              '10:00 AM',
+              '11:00 AM',
+              '1:00 PM',
+              '2:00 PM',
+              '3:00 PM',
+              '4:00 PM',
+              '5:00 PM',
+            ]),
       ),
     );
-   if(result==true){
-        loadAppointments();
-
-   }
+    if (result == true) {
+      loadAppointments();
+    }
   }
 
 // This function creates and returns a TextField widget with specified properties.
@@ -260,7 +253,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     loadAppointments();
 
-  return Scaffold(
+    return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
             _navigateToAddEventScreen(), // Define the onPressed action.
@@ -268,58 +261,56 @@ class _CalendarPageState extends State<CalendarPage> {
           Icons.edit,
           color: Color(0xff0E4C92),
         ),
-        backgroundColor:
-            Colors.white, // Background color of the button.
+        backgroundColor: Colors.white, // Background color of the button.
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // Card widget for displaying content with a card-like design.
-     Card(
-  margin: const EdgeInsets.all(8.0),
-  elevation: 5.0,
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(
-      Radius.circular(10),
-    ),
-  ),
-  child: TableCalendar(
-    calendarFormat: _calendarFormat,
-    focusedDay: _focusedCalendarDate,
-    firstDay: _initialCalendarDate,
-    lastDay: _lastCalendarDate,
-    eventLoader: (day) {
-      // Implement your logic to load events for the specified day
-      return mySelectedEvents[day] ?? [];
-    },
-    // ... (Other existing properties)
+            Card(
+              margin: const EdgeInsets.all(8.0),
+              elevation: 5.0,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+              child: TableCalendar(
+                calendarFormat: _calendarFormat,
+                focusedDay: _focusedCalendarDate,
+                firstDay: _initialCalendarDate,
+                lastDay: _lastCalendarDate,
+                eventLoader: (day) {
+                  // Implement your logic to load events for the specified day
+                  return mySelectedEvents[day] ?? [];
+                },
+                // ... (Other existing properties)
 
-    selectedDayPredicate: (currentSelectedDate) {
-      return isSameDay(selectedCalendarDate, currentSelectedDate);
-    },
-    onDaySelected: (selectedDay, focusedDay) {
-      if (!isSameDay(selectedCalendarDate, selectedDay)) {
-        setState(() {
-          selectedCalendarDate = selectedDay;
-          _focusedCalendarDate = focusedDay;
-        });
-        loadAppointments();
-      }
-    },
+                selectedDayPredicate: (currentSelectedDate) {
+                  return isSameDay(selectedCalendarDate, currentSelectedDate);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  if (!isSameDay(selectedCalendarDate, selectedDay)) {
+                    setState(() {
+                      selectedCalendarDate = selectedDay;
+                      _focusedCalendarDate = focusedDay;
+                    });
+                    loadAppointments();
+                  }
+                },
 
-    calendarStyle: CalendarStyle(
-      selectedDecoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xff87bfff),
-      ),
-      todayDecoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color.fromARGB(255, 175, 210, 249),
-      ),
-    
-    ),
-  ),
-),
+                calendarStyle: CalendarStyle(
+                  selectedDecoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xff87bfff),
+                  ),
+                  todayDecoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromARGB(255, 175, 210, 249),
+                  ),
+                ),
+              ),
+            ),
 
             // Map over a list of events and display them as ListTiles.
 
@@ -388,5 +379,5 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       ),
     );
-    }
+  }
 }

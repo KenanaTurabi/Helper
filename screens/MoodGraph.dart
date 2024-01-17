@@ -29,7 +29,7 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
 
   Future<void> fetchData() async {
     final int? userId = await getUserId();
-    final url = 'http://localhost:5000/emojiPercentages/$userId';
+    final url = 'http://192.168.1.3:5000/emojiPercentages/$userId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -41,7 +41,8 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
 
         data.forEach((emoji, percentage) {
           double fontSize = 12.0;
-          var emojiData = EmojiData(emoji, double.parse(percentage), fontSize: fontSize);
+          var emojiData =
+              EmojiData(emoji, double.parse(percentage), fontSize: fontSize);
           tempEmojiData.add(emojiData);
         });
 
@@ -59,14 +60,12 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            // backgroundColor:  Color.fromARGB(255, 213, 231, 251),
-            backgroundColor:  Colors.white,
+      // backgroundColor:  Color.fromARGB(255, 213, 231, 251),
+      backgroundColor: Colors.white,
 
       appBar: AppBar(
-
-            backgroundColor:  Colors.white,
-
-      title: Text('Mood Chart'),
+        backgroundColor: Colors.white,
+        title: Text('Mood Chart'),
       ),
       body: Column(
         children: [
@@ -75,7 +74,6 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
               top: 50,
             ),
           ),
-        
           Container(
             height: 550,
             margin: EdgeInsets.all(16),
@@ -93,69 +91,63 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
               ],
             ),
             child: Center(
-              
-             child:Column(
-              children:[
-
-  Text(
-              'Your mood this month',
-              style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.normal,
+                child: Column(children: [
+              Text(
+                'Your mood this month',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
-            ),
-            Container(
- 
+              Container(
                 padding: EdgeInsets.only(top: 60),
                 height: 400,
                 width: 400,
                 child: charts.BarChart(
-                  
                   _createData(),
                   animate: true,
                   barGroupingType: charts.BarGroupingType.grouped,
                   vertical: true,
-                 primaryMeasureAxis: charts.NumericAxisSpec(
-  renderSpec: charts.GridlineRendererSpec(
-    labelAnchor: charts.TickLabelAnchor.before,
-    labelJustification: charts.TickLabelJustification.inside,
-  ),
-  tickProviderSpec: charts.BasicNumericTickProviderSpec(
-    desiredTickCount: 5,
-    // Set the desired range for the y-axis (from 0 to 100)
-    desiredMaxTickCount: 5,
-    desiredMinTickCount: 0,
-  ),
-  showAxisLine: true,
-  tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-    (num? value) {
-      if (value != null) {
-        return '${value.toStringAsFixed(0)}%';
-      }
-      return '';
-    },
-  ),
-),
-
+                  primaryMeasureAxis: charts.NumericAxisSpec(
+                    renderSpec: charts.GridlineRendererSpec(
+                      labelAnchor: charts.TickLabelAnchor.before,
+                      labelJustification: charts.TickLabelJustification.inside,
+                    ),
+                    tickProviderSpec: charts.BasicNumericTickProviderSpec(
+                      desiredTickCount: 5,
+                      // Set the desired range for the y-axis (from 0 to 100)
+                      desiredMaxTickCount: 5,
+                      desiredMinTickCount: 0,
+                    ),
+                    showAxisLine: true,
+                    tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+                      (num? value) {
+                        if (value != null) {
+                          return '${value.toStringAsFixed(0)}%';
+                        }
+                        return '';
+                      },
+                    ),
+                  ),
                   domainAxis: charts.OrdinalAxisSpec(
- renderSpec: charts.SmallTickRendererSpec(
-  labelAnchor: charts.TickLabelAnchor.centered,
-  labelJustification: charts.TickLabelJustification.inside,
-  labelRotation: 0, // Set rotation to 0
-  labelOffsetFromAxisPx: 20, // Adjust the offset to move the labels away from the axis
-  lineStyle: charts.LineStyleSpec(
-    color: charts.MaterialPalette.black,
-  ),
-),
-
-
+                    renderSpec: charts.SmallTickRendererSpec(
+                      labelAnchor: charts.TickLabelAnchor.centered,
+                      labelJustification: charts.TickLabelJustification.inside,
+                      labelRotation: 0, // Set rotation to 0
+                      labelOffsetFromAxisPx:
+                          20, // Adjust the offset to move the labels away from the axis
+                      lineStyle: charts.LineStyleSpec(
+                        color: charts.MaterialPalette.black,
+                      ),
+                    ),
                     tickProviderSpec: charts.StaticOrdinalTickProviderSpec(
                       <charts.TickSpec<String>>[
                         for (var emoji in emojiData.map((data) => data.emoji))
-                          charts.TickSpec<String>(emoji, label: '   ${emojiToWord[emoji] ?? ''}'),
+                          charts.TickSpec<String>(emoji,
+                              label: '   ${emojiToWord[emoji] ?? ''}'),
                       ],
                     ),
                   ),
@@ -164,11 +156,7 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
                   ),
                 ),
               ),
-
-              ]
-             )
-              
-            ),
+            ])),
           ),
         ],
       ),
@@ -176,7 +164,11 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
   }
 
   List<charts.Series<EmojiData, String>> _createData() {
-    List<Color> barColors = [Color(0xff87bfff), Color.fromARGB(255, 106, 174, 251), Color.fromARGB(255, 182, 215, 253)];
+    List<Color> barColors = [
+      Color(0xff87bfff),
+      Color.fromARGB(255, 106, 174, 251),
+      Color.fromARGB(255, 182, 215, 253)
+    ];
 
     return [
       charts.Series<EmojiData, String>(
@@ -184,8 +176,10 @@ class _MoodDiagramPageState extends State<MoodDiagramPage> {
         domainFn: (EmojiData data, _) => data.emoji,
         measureFn: (EmojiData data, _) => data.percentage,
         data: emojiData,
-        colorFn: (EmojiData data, _) => charts.ColorUtil.fromDartColor(barColors[emojiData.indexOf(data) % barColors.length]),
-        labelAccessorFn: (EmojiData data, _) => data.label, // Use the custom label
+        colorFn: (EmojiData data, _) => charts.ColorUtil.fromDartColor(
+            barColors[emojiData.indexOf(data) % barColors.length]),
+        labelAccessorFn: (EmojiData data, _) =>
+            data.label, // Use the custom label
       ),
     ];
   }
@@ -197,5 +191,6 @@ class EmojiData {
   final String label; // Custom label
   final double fontSize;
 
-  EmojiData(this.emoji, this.percentage, {this.fontSize = 50.0}) : label = '$emoji\n${percentage.toStringAsFixed(0)}%';
+  EmojiData(this.emoji, this.percentage, {this.fontSize = 50.0})
+      : label = '$emoji\n${percentage.toStringAsFixed(0)}%';
 }

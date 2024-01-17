@@ -15,7 +15,7 @@ class _AllPatientsPageState extends State<AllPatientsPage> {
 
   Future<List<Patient>> getAllPatients() async {
     final response =
-        await http.get(Uri.parse('http://localhost:5000/patients'));
+        await http.get(Uri.parse('http://192.168.1.3:5000/patients'));
 
     if (response.statusCode == 200) {
       final List<dynamic> patientsJsonList =

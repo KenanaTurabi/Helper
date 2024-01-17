@@ -59,7 +59,7 @@ class _SignupState extends State<Signup> {
       print('Request Body: $userData');
 
       final response = await http.post(
-        Uri.parse('http://localhost:5000/users'),
+        Uri.parse('http://192.168.1.3:5000/users'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

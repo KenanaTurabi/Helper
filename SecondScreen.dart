@@ -6,7 +6,6 @@ import 'package:flutter_application_1/shared_preferences_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_application_1/home.dart';
 
-
 class SecondScreen extends StatefulWidget {
   bool isDark;
   Function updateState;
@@ -15,8 +14,8 @@ class SecondScreen extends StatefulWidget {
   final String? selectedMeetingType; // Add the selectedMeetingType parameter
 
   SecondScreen({
-    required this.isDark, 
-   required  this.updateState,
+    required this.isDark,
+    required this.updateState,
     required this.selectedDate,
     required this.availableTimes,
     this.selectedMeetingType,
@@ -31,8 +30,9 @@ class _SecondScreenState extends State<SecondScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descpController = TextEditingController();
   String? selectedTime;
-  String? selectedMeetingType; // New variable to store the selected meeting type
- String currentWorkPlace="";
+  String?
+      selectedMeetingType; // New variable to store the selected meeting type
+  String currentWorkPlace = "";
 
   @override
   void dispose() {
@@ -54,7 +54,7 @@ class _SecondScreenState extends State<SecondScreen> {
   Future<void> fetchSpecialists() async {
     try {
       final response =
-          await http.get(Uri.parse('http://localhost:5000/specialists'));
+          await http.get(Uri.parse('http://192.168.1.3:5000/specialists'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['specialists'];
@@ -66,10 +66,9 @@ class _SecondScreenState extends State<SecondScreen> {
               name: specialist['name'],
               image: specialist['image'],
               specialistId: specialistId,
-              currentworkingplace:specialist['CurrentWorkPlace'],
-       
+              currentworkingplace: specialist['CurrentWorkPlace'],
 
-               // Make sure you have a userId property in your Doctor class
+              // Make sure you have a userId property in your Doctor class
             );
           }).toList();
         });
@@ -84,12 +83,12 @@ class _SecondScreenState extends State<SecondScreen> {
   Future<void> bookAppointment() async {
     try {
       final int? userId = await getUserId(); //patientId
-  final formattedDate =
-        DateFormat("yyyy-MM-dd'T'00:00:00.000+00:00").format(widget.selectedDate);
+      final formattedDate = DateFormat("yyyy-MM-dd'T'00:00:00.000+00:00")
+          .format(widget.selectedDate);
 
       final response = await http.post(
         Uri.parse(
-            'http://localhost:5000/appointments'), // Replace with your endpoint
+            'http://192.168.1.3:5000/appointments'), // Replace with your endpoint
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -180,94 +179,96 @@ class _SecondScreenState extends State<SecondScreen> {
             SizedBox(height: 30.0),
 
 // Define a variable to hold the height of the selected doctor field
- Column(
-        children: [
-          InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Select Doctor',
-              border: OutlineInputBorder(),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: Container(
-                height: 50.0, // Set the height for the dropdown button
-                child: DropdownButton<Doctor>(
-                  value: selectedDoctor,
-                  onChanged: (Doctor? value) {
-                    setState(() {
-                      selectedDoctor = value;
-                    });
-                  },
-                          hint: Text('Select a Doctor'), // Set the initial text here
+            Column(
+              children: [
+                InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Select Doctor',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: Container(
+                      height: 50.0, // Set the height for the dropdown button
+                      child: DropdownButton<Doctor>(
+                        value: selectedDoctor,
+                        onChanged: (Doctor? value) {
+                          setState(() {
+                            selectedDoctor = value;
+                          });
+                        },
+                        hint: Text(
+                            'Select a Doctor'), // Set the initial text here
 
-                  itemHeight: 80,
-                  items: specialists.map((Doctor doctor) {
-                    return DropdownMenuItem<Doctor>(
-                      value: doctor,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage:
-                                    AssetImage('assets/images/${doctor.image}'),
-                                maxRadius: 20,
-                              ),
-                              SizedBox(width: 8.0),
-                              Text(doctor.name),
-                            ],
-                          ),
-                          // Display currentWorkPlace only in the dropdown list
-                          if (selectedDoctor == null || selectedDoctor != doctor)
-                            Row(
+                        itemHeight: 80,
+                        items: specialists.map((Doctor doctor) {
+                          return DropdownMenuItem<Doctor>(
+                            value: doctor,
+                            child: Column(
                               children: [
-                                Text(doctor.currentworkingplace??''),
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                          'assets/images/${doctor.image}'),
+                                      maxRadius: 20,
+                                    ),
+                                    SizedBox(width: 8.0),
+                                    Text(doctor.name),
+                                  ],
+                                ),
+                                // Display currentWorkPlace only in the dropdown list
+                                if (selectedDoctor == null ||
+                                    selectedDoctor != doctor)
+                                  Row(
+                                    children: [
+                                      Text(doctor.currentworkingplace ?? ''),
+                                    ],
+                                  ),
                               ],
                             ),
-                        ],
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
-                  SizedBox(height: 20.0),
+            SizedBox(height: 20.0),
 
- Column(
-        children: [
-          InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'Select Time',
-              border: OutlineInputBorder(),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: Container(
-                height: 50.0, // Set the height for the dropdown button
-                child: DropdownButton<String>(
-                  value: selectedTime,
-              onChanged: (String? value) {
-                setState(() {
-                  selectedTime = value;
-                });
-              },
-                          hint: Text('Select Time'), // Set the initial text here
+            Column(
+              children: [
+                InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Select Time',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: Container(
+                      height: 50.0, // Set the height for the dropdown button
+                      child: DropdownButton<String>(
+                        value: selectedTime,
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedTime = value;
+                          });
+                        },
+                        hint: Text('Select Time'), // Set the initial text here
 
-                  itemHeight: 80,
-               items: widget.availableTimes.map((String time) {
-                return DropdownMenuItem<String>(
-                  value: time,
-                  child: Text(time),
-                );
-              }).toList(),
+                        itemHeight: 80,
+                        items: widget.availableTimes.map((String time) {
+                          return DropdownMenuItem<String>(
+                            value: time,
+                            child: Text(time),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-              ),
-            ),
-          ),
-        ],
-      ),
-          
+
             SizedBox(height: 20.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -275,11 +276,9 @@ class _SecondScreenState extends State<SecondScreen> {
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
               ),
               onPressed: () {
-             
                 bookAppointment();
 
-
-               Navigator.pop(context, true);
+                Navigator.pop(context, true);
               },
               child: Text('Book Now'),
             ),

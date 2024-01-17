@@ -29,6 +29,7 @@ const moodRouter=require('./routers/MoodRouter');
 
  const bodyParser = require("body-parser");
 const port = process.env.PORT || 5000;
+const ipAddress = '192.168.1.3'; // Use your laptop's IP address
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -54,10 +55,13 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname+"/public/index.html");
 });
 
+http.listen(port, ipAddress, function(){
+    console.log(`Server is running at http://${ipAddress}:${port}`);
+});
 
-http.listen(5000, function(){
-    console.log('Server is running');
-})
+// http.listen(5000, function(){
+//     console.log('Server is running');
+// })
 
 /*
 

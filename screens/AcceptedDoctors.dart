@@ -12,7 +12,8 @@ class AcceptedDoctorsPage extends StatefulWidget {
 
 class _AcceptedDoctorsPageState extends State<AcceptedDoctorsPage> {
   Future<List<Doctor>> getAcceptedDoctors() async {
-    final response = await http.get(Uri.parse('http://localhost:5000/doctors'));
+    final response =
+        await http.get(Uri.parse('http://192.168.1.3:5000/doctors'));
 
     if (response.statusCode == 200) {
       final List<dynamic> doctorsJsonList =
@@ -82,7 +83,7 @@ class _AcceptedDoctorsPageState extends State<AcceptedDoctorsPage> {
   Future<void> deleteDoctor(int doctorId) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://localhost:5000/doctors/$doctorId'),
+        Uri.parse('http://192.168.1.3:5000/doctors/$doctorId'),
       );
 
       if (response.statusCode == 200) {

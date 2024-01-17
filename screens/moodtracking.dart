@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/shared_preferences_helper.dart';
 import 'dart:convert';
 
-
 class MoodSelectionPage extends StatefulWidget {
   @override
   _MoodSelectionPageState createState() => _MoodSelectionPageState();
@@ -19,29 +18,29 @@ class _MoodSelectionPageState extends State<MoodSelectionPage> {
     super.initState();
     selectedEmoji = '😊'; // Default emoji
   }
-  
+
   Future<void> sendMoodToBackend(String moodValue) async {
     final int? userId = await getUserId(); //patientId
-print(moodValue);
-print(userId);
+    print(moodValue);
+    print(userId);
 
-    final url = Uri.parse('http://localhost:5000/insertmood/$userId');
+    final url = Uri.parse('http://192.168.1.3:5000/insertmood/$userId');
 
-   try {
-    final response = await http.post(
-      url,
-      body: jsonEncode({'moodValue': moodValue}), // Use jsonEncode
-      headers: {'Content-Type': 'application/json'}, // Specify content type
-    );
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode({'moodValue': moodValue}), // Use jsonEncode
+        headers: {'Content-Type': 'application/json'}, // Specify content type
+      );
 
       if (response.statusCode == 200) {
         print('Mood successfully sent to the backend');
         Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MoodDiagramPage(),
-      ),
-    );
+          context,
+          MaterialPageRoute(
+            builder: (context) => MoodDiagramPage(),
+          ),
+        );
         // You can handle the success as needed
       } else {
         print('Failed to send mood to the backend');
@@ -53,7 +52,6 @@ print(userId);
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,70 +59,68 @@ print(userId);
         title: Text('Select Your Mood'),
       ),
       body: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+        mainAxisAlignment: MainAxisAlignment.center, // Center vertically
         crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
         children: [
-             Text(  "How do you feel today?",
-                                  style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18.0,
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                ),
+          Text(
+            "How do you feel today?",
+            style: GoogleFonts.poppins(
+              textStyle: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+                fontSize: 18.0,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
           SizedBox(height: 20),
-   Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center, // Center vertically
-        crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
-        children: [
-          EmojiList(onEmojiSelected: (emoji) {
-            setState(() {
-              selectedEmoji = emoji;
-            });
-            print('Selected emoji: $emoji');
-          }),
-        ],
-      ),
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Center horizontally
+            children: [
+              EmojiList(onEmojiSelected: (emoji) {
+                setState(() {
+                  selectedEmoji = emoji;
+                });
+                print('Selected emoji: $emoji');
+              }),
+            ],
+          ),
+          SizedBox(height: 50.0),
+          Container(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: ElevatedButton(
+                // Use ElevatedButton instead of FlatButton
+                onPressed: () {
+                  sendMoodToBackend(selectedEmoji);
+                },
+                style: ElevatedButton.styleFrom(
+                  primary:
+                      Color(0xff87bfff), // Set the button's background color
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                ),
 
-                           SizedBox(height: 50.0),
-                          Container(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: ElevatedButton(
-                                // Use ElevatedButton instead of FlatButton
-                                onPressed: () {
-                                sendMoodToBackend( selectedEmoji);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  primary: Color(
-                                      0xff87bfff), // Set the button's background color
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 20, horizontal: 40),
-                                ),
-
-                                child: Text(
-                                  "Next",
-                                  style: GoogleFonts.poppins(
-                                    textStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.0,
-                                      fontFamily: 'Poppins',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                child: Text(
+                  "Next",
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
-
 
 class EmojiList extends StatefulWidget {
   final Function(String) onEmojiSelected;
@@ -146,52 +142,52 @@ class _EmojiListState extends State<EmojiList> {
 
   @override
   Widget build(BuildContext context) {
-  return Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    Center(
-      child: SizedBox(
-        height: 80,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: EmojiListWidget.emojis.length,
-          itemBuilder: (context, index) {
-            final emoji = EmojiListWidget.emojis[index];
-            return Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedEmoji = emoji;
-                  });
-                  widget.onEmojiSelected(selectedEmoji);
-                },
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    color: selectedEmoji == emoji ? Color(0xff87bfff) : Colors.white,
-                  ),
-                  child: Center(
-                    child: Text(
-                      emoji,
-                      style: TextStyle(fontSize: 24),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: SizedBox(
+            height: 80,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: EmojiListWidget.emojis.length,
+              itemBuilder: (context, index) {
+                final emoji = EmojiListWidget.emojis[index];
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedEmoji = emoji;
+                      });
+                      widget.onEmojiSelected(selectedEmoji);
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: selectedEmoji == emoji
+                            ? Color(0xff87bfff)
+                            : Colors.white,
+                      ),
+                      child: Center(
+                        child: Text(
+                          emoji,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
+                );
+              },
+            ),
+          ),
         ),
-      ),
-    ),
-  ],
-);
-
+      ],
+    );
   }
 }
-
 
 class EmojiListWidget {
   static const List<String> emojis = [
@@ -201,7 +197,7 @@ class EmojiListWidget {
     '🥺',
     '😢',
     '😡',
-    
+
     // Add more emojis as needed
   ];
 }

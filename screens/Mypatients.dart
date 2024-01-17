@@ -18,19 +18,20 @@ class MyPatients extends StatefulWidget {
 class _MyPatientsState extends State<MyPatients> {
   List<Patient> patients = []; // Add a list to store doctors
 
- @override
+  @override
   void initState() {
     super.initState();
     _fetchPatients(); // Fetch doctors when the widget initializes
   }
-    Future<void> _fetchPatients() async {
+
+  Future<void> _fetchPatients() async {
     try {
       // Fetch specialist ID from SharedPreferences
-    final int? specialistId = await getUserId();
+      final int? specialistId = await getUserId();
 
       // Make an HTTP request to fetch patients based on the specialist ID
       final response = await http.get(
-        Uri.parse('http://localhost:5000/patientsBySpecialist/$specialistId'),
+        Uri.parse('http://192.168.1.3:5000/patientsBySpecialist/$specialistId'),
       );
 
       if (response.statusCode == 200) {
@@ -47,7 +48,6 @@ class _MyPatientsState extends State<MyPatients> {
     }
   }
 
- 
   @override
   Widget build(BuildContext context) {
     CustomeAppBar customeAppBar =
@@ -55,26 +55,21 @@ class _MyPatientsState extends State<MyPatients> {
 
     return Scaffold(
         appBar: AppBar(
-                  title: Text('Patient imformation'),
-
-           leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-
-           Navigator.pop(context); // Navigate back to the previous screen
-
-                
-  
-      },
-        ),
+          title: Text('Patient imformation'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // Navigate back to the previous screen
+            },
+          ),
         ),
 
         // TODO: implement build
         body: ListView(
-      children: patients
-          .map((patient) =>
-             PatientWidget(patient, widget.isDark, widget.updateState))
-          .toList(),
-    ));
+          children: patients
+              .map((patient) =>
+                  PatientWidget(patient, widget.isDark, widget.updateState))
+              .toList(),
+        ));
   }
 }

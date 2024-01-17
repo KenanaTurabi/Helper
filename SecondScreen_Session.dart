@@ -35,54 +35,50 @@ class _SecondScreen_SessionState extends State<SecondScreen_Session> {
     super.dispose();
   }
 
- 
-
   @override
   void initState() {
     super.initState();
   }
 
- 
+  Future<void> createSession() async {
+    try {
+      final int? userId = await getUserId(); //patientId
 
-Future<void> createSession() async {
-  try {
-          final int? userId = await getUserId(); //patientId
+      final int? specialistId = userId; // Replace with the actual specialistId
 
-    final int? specialistId = userId; // Replace with the actual specialistId
-    
-    final String subject = titleController.text;
-    final String time = selectedTime ?? '';
-    final String formattedDate = DateFormat("yyyy-MM-dd'T'00:00:00.000+00:00").format(widget.selectedDate);
+      final String subject = titleController.text;
+      final String time = selectedTime ?? '';
+      final String formattedDate = DateFormat("yyyy-MM-dd'T'00:00:00.000+00:00")
+          .format(widget.selectedDate);
 
-    final Map<String, dynamic> sessionData = {
-      'specialistId': specialistId,
+      final Map<String, dynamic> sessionData = {
+        'specialistId': specialistId,
+        'subject': subject,
+        'time': time,
+        'Session_Date': formattedDate,
+      };
 
-      'subject': subject,
-      'time': time,
-      'Session_Date': formattedDate,
-    };
+      final response = await http.post(
+        Uri.parse(
+            'http://192.168.1.3:5000/create-session'), // Replace with your backend endpoint
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(sessionData),
+      );
 
-    final response = await http.post(
-      Uri.parse('http://localhost:5000/create-session'), // Replace with your backend endpoint
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(sessionData),
-    );
-
-    if (response.statusCode == 201) {
-      // Session created successfully
-      print('Session created successfully');
-      // Optionally, you can navigate to another screen or show a success message.
-    } else {
-      // Handle other status codes or errors
-      print('Failed to create session');
+      if (response.statusCode == 201) {
+        // Session created successfully
+        print('Session created successfully');
+        // Optionally, you can navigate to another screen or show a success message.
+      } else {
+        // Handle other status codes or errors
+        print('Failed to create session');
+      }
+    } catch (error) {
+      print('Error creating session: $error');
     }
-  } catch (error) {
-    print('Error creating session: $error');
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

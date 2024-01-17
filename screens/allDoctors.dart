@@ -25,7 +25,7 @@ class _AllDoctorsState extends State<AllDoctors> {
 
   Future<void> _fetchDoctors() async {
     final response = await http.get(
-      Uri.parse('http://localhost:5000/Doctors'),
+      Uri.parse('http://192.168.1.3:5000/Doctors'),
     );
 
     if (response.statusCode == 200) {

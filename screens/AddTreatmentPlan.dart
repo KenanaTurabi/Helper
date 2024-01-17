@@ -43,7 +43,7 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
   // Function to fetch the treatment plan from the backend
   Future<void> fetchTreatmentPlan() async {
     final patientId = widget.patient.id; // Replace with the actual patient ID
-    final url = 'http://localhost:5000/getTreatmentPlan/$patientId';
+    final url = 'http://192.168.1.3:5000/getTreatmentPlan/$patientId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -52,10 +52,12 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
         final Map<String, dynamic> data = jsonDecode(response.body);
         setState(() {
           diagnosesController.text = data['diagnoses'] ?? '';
-          tasks = List<Task>.from(data['tasks']?.map((x) => Task.fromJson(x)) ?? []);
+          tasks = List<Task>.from(
+              data['tasks']?.map((x) => Task.fromJson(x)) ?? []);
         });
       } else {
-        print('Failed to fetch treatment plan. Status code: ${response.statusCode}');
+        print(
+            'Failed to fetch treatment plan. Status code: ${response.statusCode}');
       }
     } catch (error) {
       print('Error during fetchTreatmentPlan: $error');
@@ -69,7 +71,8 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
     final taskNames = tasks.map((task) => task.name).toList();
     final taskDescriptions = tasks.map((task) => task.description).toList();
 
-    final url = Uri.parse('http://localhost:5000/saveTreatmentPlan'); // Replace with your backend URL
+    final url = Uri.parse(
+        'http://192.168.1.3:5000/saveTreatmentPlan'); // Replace with your backend URL
 
     try {
       final response = await http.post(
@@ -77,14 +80,17 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
         body: jsonEncode({
           'userId': patientId,
           'diagnoses': diagnoses,
-          'tasks': tasks.map((task) => {'name': task.name, 'description': task.description}).toList(),
+          'tasks': tasks
+              .map((task) =>
+                  {'name': task.name, 'description': task.description})
+              .toList(),
         }),
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200 ) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         print('Data saved successfully');
-                   Navigator.pop(context,true); // Navigate back to the previous screen
+        Navigator.pop(context, true); // Navigate back to the previous screen
 
       } else {
         print('Failed to save data. Status code: ${response.statusCode}');
@@ -136,7 +142,8 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
                                 isEditingDiagnoses = !isEditingDiagnoses;
                                 if (!isEditingDiagnoses) {
                                   // Save or update the diagnoses here
-                                  print('Diagnoses updated: ${diagnosesController.text}');
+                                  print(
+                                      'Diagnoses updated: ${diagnosesController.text}');
                                 }
                               });
                             },
@@ -154,15 +161,15 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
                   ),
                   isEditingDiagnoses
                       ? TextFormField(
-                    controller: diagnosesController,
-                    decoration: InputDecoration(labelText: 'Enter Diagnoses'),
-                  )
+                          controller: diagnosesController,
+                          decoration:
+                              InputDecoration(labelText: 'Enter Diagnoses'),
+                        )
                       : Text(
-                    
-                        (diagnosesController.text.isNotEmpty
-                            ? ' ${diagnosesController.text}'
-                            : ''),
-                  ),
+                          (diagnosesController.text.isNotEmpty
+                              ? ' ${diagnosesController.text}'
+                              : ''),
+                        ),
                 ],
               ),
             ),
@@ -176,14 +183,23 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        tasks.add(Task(name: 'Task Name', description: 'Task Description'));
+                        tasks.add(Task(
+                            name: 'Task Name',
+                            description: 'Task Description'));
                       });
                     },
-                    icon: Icon(Icons.add, color: Colors.white,),
-                    label: Text('Add Task', style: TextStyle(color: Colors.white),),
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      'Add Task',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       primary: Color(0xff87bfff),
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -209,10 +225,12 @@ class _DiagnosesPageState extends State<DiagnosesPage> {
                 borderRadius: BorderRadius.circular(10),
                 child: ElevatedButton(
                   onPressed: () {
-                    if (tasks.every((task) => task.name.isNotEmpty && task.description.isNotEmpty)) {
+                    if (tasks.every((task) =>
+                        task.name.isNotEmpty && task.description.isNotEmpty)) {
                       saveData();
                     } else {
-                      print('Please provide names and descriptions for all tasks.');
+                      print(
+                          'Please provide names and descriptions for all tasks.');
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -304,31 +322,34 @@ class _TreatmentPlanContainerState extends State<TreatmentPlanContainer> {
           ),
           isEditingTask
               ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: nameController,
-                onChanged: (value) {
-                  widget.task.name = value; // Update the task name when editing
-                },
-                decoration: InputDecoration(labelText: 'Enter Task Name'),
-              ),
-              TextFormField(
-                controller: descriptionController,
-                onChanged: (value) {
-                  widget.task.description = value; // Update the task description when editing
-                },
-                decoration: InputDecoration(labelText: 'Enter Task Description'),
-              ),
-            ],
-          )
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      onChanged: (value) {
+                        widget.task.name =
+                            value; // Update the task name when editing
+                      },
+                      decoration: InputDecoration(labelText: 'Enter Task Name'),
+                    ),
+                    TextFormField(
+                      controller: descriptionController,
+                      onChanged: (value) {
+                        widget.task.description =
+                            value; // Update the task description when editing
+                      },
+                      decoration:
+                          InputDecoration(labelText: 'Enter Task Description'),
+                    ),
+                  ],
+                )
               : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Name: ${widget.task.name}'),
-              Text('Description: ${widget.task.description}'),
-            ],
-          ),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Name: ${widget.task.name}'),
+                    Text('Description: ${widget.task.description}'),
+                  ],
+                ),
         ],
       ),
     );
