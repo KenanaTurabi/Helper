@@ -21,6 +21,8 @@ class _PostWidgetState extends State<PostWidget> {
   final PageStorageBucket bucket = PageStorageBucket();
 
   String? userFullName = "";
+  String? userImage = "";
+
   int? userId;
   List<CommentModel> comments = [];
   final Logger logger = Logger();
@@ -41,12 +43,15 @@ class _PostWidgetState extends State<PostWidget> {
         commentsData.forEach((comment) {
           commentsWithNames.add(Future.sync(() async {
             String userName = await getUserFullName(comment['userId']);
+            String userImage = await getUserImg(comment['userId']);
+            print('User Image URL: $userImage');
+
             return CommentModel(
-              content: comment['content'].toString(),
-              postId: comment['postId'],
-              userId: comment['userId'],
-              commentOwnerName: userName,
-            );
+                content: comment['content'].toString(),
+                postId: comment['postId'],
+                userId: comment['userId'],
+                commentOwnerName: userName,
+                commentOwnerImage: userImage);
           }));
         });
 
@@ -85,12 +90,41 @@ class _PostWidgetState extends State<PostWidget> {
     }
   }
 
+  Future<String> getUserImg(int userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/GetUserDetails/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> userData = json.decode(response.body);
+        final String userimage = userData['image'];
+
+        // Check if the image URL is not empty or null
+        if (userimage != null && userimage.isNotEmpty) {
+          return userimage;
+        } else {
+          print('User Image URL is empty or null');
+          return "Unknown";
+        }
+      } else {
+        print('Failed to load user details: ${response.statusCode}');
+        return "Unknown";
+      }
+    } catch (error) {
+      print('Error loading user details: $error');
+      return "Unknown";
+    }
+  }
+
   Future<void> addComment() async {
     try {
       int? userId = await getUserId();
       print("user id:" + userId.toString());
 
       String ownerName = await getUserFullName(userId!) ?? "Unknown";
+      String ownerImg = await getUserImg(userId) ?? "Unknown";
+
       print("user name2:" + ownerName);
 
       if (content.trim().isEmpty) {
@@ -107,6 +141,7 @@ class _PostWidgetState extends State<PostWidget> {
           'postId': widget.postModel.postId,
           'userId': userId,
           'commentOwnerName': ownerName,
+          'commentOwnerImage': ownerImg,
         }),
       );
 
@@ -121,12 +156,15 @@ class _PostWidgetState extends State<PostWidget> {
             commentData['content'] != null &&
             commentData['postId'] != null &&
             commentData['userId'] != null &&
-            commentData['commentOwnerName'] != null) {
+            commentData['commentOwnerName'] != null &&
+            commentData['commentOwnerImage'] != null) {
           final String commentContent = commentData['content'].toString();
           final String commentPostId = commentData['postId'].toString();
           final String commentuserId = commentData['userId'].toString();
           final String commentcommentOwnerName =
               commentData['commentOwnerName'].toString();
+          final String commentcommentOwnerImage =
+              commentData['commentOwnerImage'].toString();
 
           // Check if the widget is still mounted before calling setState
           if (!mounted) return;
@@ -136,6 +174,7 @@ class _PostWidgetState extends State<PostWidget> {
                 content: commentContent,
                 postId: int.parse(commentPostId),
                 userId: int.parse(commentuserId),
+                commentOwnerImage: commentcommentOwnerImage,
                 commentOwnerName: commentcommentOwnerName));
             _textController.clear();
             content = '';
@@ -333,6 +372,7 @@ class _PostWidgetState extends State<PostWidget> {
                   SizedBox(height: 5), // Add some space between the two rows
                   Row(
                     children: [
+                      SizedBox(width: 5),
                       Expanded(
                         child: TextField(
                           controller: _textController,
@@ -347,7 +387,9 @@ class _PostWidgetState extends State<PostWidget> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 5),
+                      SizedBox(
+                        width: 5,
+                      ),
                       InkWell(
                         onTap: () async {
                           print(
@@ -357,6 +399,7 @@ class _PostWidgetState extends State<PostWidget> {
                           print("user id:" + userId.toString());
 
                           await getUserFullName(userId!);
+                          await getUserImg(userId);
                           print(
                             "user name2:" + (userFullName ?? "Unknown"),
                           );
@@ -372,13 +415,20 @@ class _PostWidgetState extends State<PostWidget> {
                 ],
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(5, 2, 5, 2),
+                padding: EdgeInsets.fromLTRB(0, 2, 5, 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Display only the first comment under the post
                     comments.isNotEmpty
                         ? ListTile(
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                comments[0].commentOwnerImage ??
+                                    "", // Provide the image URL
+                              ),
+                              radius: 20,
+                            ),
                             title: Text(comments[0].commentOwnerName),
                             subtitle: Text(comments[0].content),
                           )
@@ -387,8 +437,8 @@ class _PostWidgetState extends State<PostWidget> {
                 ),
               ),
               Divider(
-                thickness: 1,
-                color: Colors.grey,
+                thickness: 3,
+                color: Colors.blue,
               ),
               SizedBox(
                 height: 15,

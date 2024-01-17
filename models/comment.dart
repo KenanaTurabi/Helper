@@ -8,19 +8,20 @@ class CommentModel {
   final int postId; // Add this field to store the post ID
   final int userId; // Add this field to store the post ID
   final String commentOwnerName; // Add this field to store the post ID
-
+  final String commentOwnerImage;
   CommentModel(
       {required this.content,
       required this.postId,
       required this.userId,
+      required this.commentOwnerImage,
       required this.commentOwnerName});
 
   factory CommentModel.fromMap(Map<String, dynamic> map) {
     return CommentModel(
-      content: map['content'],
-      postId: map['postId'],
-      userId: map['userId'],
-      commentOwnerName: map['commentOwnerName'],
-    );
+        content: map['content'],
+        postId: map['postId'],
+        userId: map['userId'],
+        commentOwnerName: map['commentOwnerName'],
+        commentOwnerImage: map['commentOwnerImage']);
   }
 }

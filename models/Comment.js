@@ -9,6 +9,10 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  commentOwnerImage:{
+    type: String,
+    required: true,
+  },
   postId: {
     type: Number, // Keep the type as Number
     required: true,

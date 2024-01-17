@@ -19,7 +19,7 @@ router.get('/comment/:postId', async (req, res) => {
 
 router.put("/comments/add", async (req, res) => {
   try {
-    const { content, postId, userId,commentOwnerName} = req.body;
+    const { content, postId, userId,commentOwnerName,commentOwnerImage} = req.body;
 
     // Check if the post exists
     const post = await Post.findOne({ postId: postId });
@@ -28,7 +28,7 @@ router.put("/comments/add", async (req, res) => {
     }
 
     // Create a new comment
-    const comment = new Comment({ content, postId,userId,commentOwnerName });
+    const comment = new Comment({ content, postId,userId,commentOwnerName,commentOwnerImage });
 
     // Save the comment
     await comment.save();

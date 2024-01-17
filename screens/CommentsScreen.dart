@@ -34,9 +34,24 @@ class _CommentsScreenState extends State<CommentsScreen> {
         body: ListView.builder(
           itemCount: widget.comments.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(widget.comments[index].commentOwnerName),
-              subtitle: Text(widget.comments[index].content),
+            return Column(
+              children: [
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(
+                      widget.comments[index].commentOwnerImage ??
+                          "", // Provide the image URL
+                    ),
+                    radius: 20,
+                  ),
+                  title: Text(widget.comments[index].commentOwnerName),
+                  subtitle: Text(widget.comments[index].content),
+                ),
+                Divider(
+                  thickness: 0.3,
+                  color: Colors.grey,
+                ),
+              ],
             );
           },
         ),
